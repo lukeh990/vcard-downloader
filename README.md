@@ -3,12 +3,20 @@ Download vcard files from browser
   
 Designed to be ran so that when the link is opened in a mobile browser it displays a vcard file in the native viewer.
 ## Running
-The executable accepts the environment variable `BIND` to select which ip and which ports the server will respond to. (i.e. `BIND=0.0.0.0:3000 ./<executable>`)
+### Enviroment
+#### BIND
+The executable accepts the environment variable `BIND` to select which ip and which ports the server will respond to. 
   
-Defaults to `0.0.0.0:5000`
+Example: `BIND=0.0.0.0:3000 ./vcard-downloader`
   
-	
+Default: `0.0.0.0:5000`
+#### DB_PATH
+`DB_PATH` specifies the file for the SQLite DB.
+  
+Example: `DB_PATH=./my_db.db3 ./vcard-downloader`
+  
+Default: `card_data.db3`
+### Behavior
 The server will look for vcards in the `cards/` folder. So a file at `cards/lukeh990.vcf` will be translated to `http://BASEURL/lukeh990`.
   
-  
-An API health check can be preformed at `GET /`
+A copyright notice is placed at `/` if you fork this project please update it according to the `LICENSE` file
