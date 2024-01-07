@@ -12,13 +12,13 @@ use sp_vcard::rfc6350::parameters::BaseType;
 use sp_vcard::rfc6350::values::{Category, Email, FullName, IGender, Role, Title};
 use sp_vcard::rfc6350::VCard40;
 
-pub fn create_vcard(id: String) -> VCard40 {
+pub fn create_vcard(_id: String) -> VCard40 {
     let mut vc = VCard40::new();
 
     vc.full_names.add(
         FullName::new()
             .set_value("Hello World")
-            .set_language(Some("en".into()))
+            .set_language(Some("en"))
             .add_base_type(BaseType::HOME)
             .add_base_type(BaseType::WORK),
     );

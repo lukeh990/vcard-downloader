@@ -8,7 +8,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use mime_guess;
+
 use rouille::{router, Response};
 use std::env;
 use std::fs::File;
@@ -40,7 +40,7 @@ fn main() {
                         }
                     };
                     return Response::from_file(mime_type, public);
-                } if let Ok(_card) = File::open(format!("cards/{}.vcf", id)) {
+                } else if let Ok(_card) = File::open(format!("cards/{}.vcf", id)) {
                     let data = vcard::create_vcard(id).to_string();
                     return Response::from_data("text/vcard", data);
                 }
@@ -62,8 +62,8 @@ fn get_bind_address() -> SocketAddr {
     };
 
     match env_socket {
-        Some(socket) => return socket,
-        None => return SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 5000),
+        Some(socket) => socket,
+        None => SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 5000),
     }
 }
 
