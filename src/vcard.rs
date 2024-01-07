@@ -1,12 +1,5 @@
-/*
-Luke Harding (@lukeh990) - VCard file utility
-Copyright (C) 2023 Luke Harding
-
-Licensing information can be found in the "LICENSE" file in the root directory
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2023 Luke Harding
 
 use sp_vcard::rfc6350::parameters::BaseType;
 use sp_vcard::rfc6350::values::{Category, Email, FullName, IGender, Role, Title};

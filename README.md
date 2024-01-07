@@ -21,3 +21,4 @@ When a request is made to the server, the first thing it does is check if the fi
 
 ## Licensing 
 A copyright notice is placed at `/` if you fork this project please update it according to the `LICENSE` file
+SPDX-License-Identifier: AGPL-3.0-only
