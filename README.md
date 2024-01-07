@@ -1,7 +1,7 @@
-# Vcard Downloader
-Download vcard files from browser
+# VCard Downloader
+Download VCard files from browser
   
-Designed to be ran so that when the link is opened in a mobile browser it displays a vcard file in the native viewer.
+Designed to be ran so that when the link is opened in a mobile browser it displays a VCard file in the native viewer.
 ## Running
 ### Enviroment
 #### BIND
@@ -17,6 +17,7 @@ Example: `DB_PATH=./my_db.db3 ./vcard-downloader`
   
 Default: `card_data.db3`
 ### Behavior
-The server will look for vcards in the `cards/` folder. So a file at `cards/lukeh990.vcf` will be translated to `http://BASEURL/lukeh990`.
-  
+When a request is made to the server, the first thing it does is check if the file is contained by the public directory. If it is not found in the public directory, it will then query the SQLite DB and return the VCard if found.
+
+## Licensing 
 A copyright notice is placed at `/` if you fork this project please update it according to the `LICENSE` file
