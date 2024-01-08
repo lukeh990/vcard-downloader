@@ -3,7 +3,8 @@ Download VCard files from browser
   
 Designed to be ran so that when the link is opened in a mobile browser it displays a VCard file in the native viewer.
 ## Running
-### Enviroment
+VCard Downloader currently just supports a SQLite DB but I am working on implementing a MySQL connection as well.
+### Environment
 #### BIND
 The executable accepts the environment variable `BIND` to select which ip and which ports the server will respond to. 
   
