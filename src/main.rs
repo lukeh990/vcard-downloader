@@ -8,19 +8,12 @@ use std::error;
 use std::fs::File;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, ToSocketAddrs};
 
-use crate::db::Database;
-
 mod vcard;
-mod db;
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 fn main() -> Result<()>  {
     println!("Initializing DB");
-
-    let mut db = db::sqlite::open()?;
-
-    let _result = db.find("string")?;
 
     let bind = get_bind_address();
 
