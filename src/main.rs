@@ -8,13 +8,15 @@ use std::error;
 use std::fs::File;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, ToSocketAddrs};
 
-mod vcard;
+pub mod schema;
+pub mod models;
 
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+mod vcard_processor;
+mod db;
+
+pub type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 fn main() -> Result<()>  {
-    println!("Initializing DB");
-
     let bind = get_bind_address();
 
     println!("Starting server on {}:{1}", bind.ip(), bind.port());
@@ -38,9 +40,10 @@ fn main() -> Result<()>  {
                         }
                     };
                     return Response::from_file(mime_type, public);
-                } else if let Ok(_card) = File::open(format!("cards/{}.vcf", id)) {
-                    let data = vcard::create_vcard(id).to_string();
-                    return Response::from_data("text/vcard", data);
+                } else if let Ok(card) = db::search_card(id) {
+                    return Response::text(card.email);
+                    // let data = vcard_processor::create_vcard(id).to_string();
+                    // return Response::from_data("text/vcard", data);
                 }
 
                 not_found()
