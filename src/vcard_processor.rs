@@ -5,7 +5,7 @@ use crate::*;
 use models::VCard;
 use sp_vcard::rfc6350::parameters::{BaseType, TelType};
 use sp_vcard::rfc6350::values::{
-    Address, Email, FullName, IGender, Name, NickName, Note, Organization, Role, Tel, Title, URL, X,
+    Address, Email, FullName, IGender, Name, NickName, Note, Organization, Role, Tel, Title, URL,
 };
 use sp_vcard::rfc6350::VCard40;
 
@@ -15,7 +15,7 @@ pub fn create_vcard(card: VCard) -> VCard40 {
     let mut full_name: String = card.prefix.to_owned();
 
     if card.firstname.ne("") && card.prefix.eq("") {
-        full_name.push_str(&format!("{}", card.firstname));
+        full_name.push_str(&card.firstname.to_string());
     } else {
         full_name.push_str(&format!(" {}", card.firstname));
     }
@@ -158,7 +158,7 @@ struct StoredAddress {
 
 fn decode_address(encoded: String) -> Result<StoredAddress> {
     match serde_json::from_str::<StoredAddress>(&encoded) {
-        Ok(addr) => return Ok(addr),
-        Err(e) => return Err(e.into()),
+        Ok(addr) => Ok(addr),
+        Err(e) => Err(e.into()),
     }
 }

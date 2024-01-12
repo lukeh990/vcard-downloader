@@ -21,7 +21,7 @@ pub fn search_card(find_uuid: String) -> Result<VCard> {
         .select(VCard::as_select())
         .load(connection)?;
 
-    let card = match results.get(0) {
+    let card = match results.first() {
         Some(card) => card.clone(),
         None => return Err("No Match Found".into())
     };
@@ -38,7 +38,7 @@ pub fn alias_search_card(find_alias: String) -> Result<VCard> {
         .select(VCard::as_select())
         .load(connection)?;
 
-    let card = match alias_results.get(0) {
+    let card = match alias_results.first() {
         Some(card) => card.clone(),
         None => return Err("No Match Found".into())
     };
