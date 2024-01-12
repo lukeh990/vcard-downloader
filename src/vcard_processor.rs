@@ -15,31 +15,31 @@ struct StoredAddress {
 }
 
 enum BaseType {
-    HOME,
-    WORK,
+    Home,
+    Work,
 }
 
 impl BaseType {
     fn as_str(&self) -> &'static str {
         match self {
-            BaseType::HOME => "HOME",
-            BaseType::WORK => "WORK",
+            BaseType::Home => "HOME",
+            BaseType::Work => "WORK",
         }
     }
 }
 
 enum TelType {
-    VOICE,
-    CELL,
-    FAX,
+    Voice,
+    Cell,
+    Fax,
 }
 
 impl TelType {
     fn as_str(&self) -> &'static str {
         match self {
-            TelType::VOICE => "VOICE",
-            TelType::CELL => "CELL",
-            TelType::FAX => "FAX",
+            TelType::Voice => "VOICE",
+            TelType::Cell => "CELL",
+            TelType::Fax => "FAX",
         }
     }
 }
@@ -72,44 +72,44 @@ pub fn create_vcard(card: VCard) -> String {
     ));
 
     match decode_address(card.h_address) {
-        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::HOME)),
+        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::Home)),
         Err(_) => (),
     }
     match decode_address(card.w_address) {
-        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::WORK)),
+        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::Work)),
         Err(_) => (),
     }
 
     if card.w_phone.ne("") {
         vcard_string.push_str(&tel_string(
             card.w_phone,
-            TelType::VOICE,
-            Some(BaseType::WORK),
+            TelType::Voice,
+            Some(BaseType::Work),
         ));
     }
 
     if card.h_phone.ne("") {
         vcard_string.push_str(&tel_string(
             card.h_phone,
-            TelType::VOICE,
-            Some(BaseType::HOME),
+            TelType::Voice,
+            Some(BaseType::Home),
         ));
     }
 
     if card.c_phone.ne("") {
-        vcard_string.push_str(&tel_string(card.c_phone, TelType::CELL, None));
+        vcard_string.push_str(&tel_string(card.c_phone, TelType::Cell, None));
     }
 
     if card.p_phone.ne("") {
-        vcard_string.push_str(&tel_string(card.p_phone, TelType::VOICE, None));
+        vcard_string.push_str(&tel_string(card.p_phone, TelType::Voice, None));
     }
 
     if card.h_fax.ne("") {
-        vcard_string.push_str(&tel_string(card.h_fax, TelType::FAX, Some(BaseType::HOME)));
+        vcard_string.push_str(&tel_string(card.h_fax, TelType::Fax, Some(BaseType::Home)));
     }
 
     if card.w_fax.ne("") {
-        vcard_string.push_str(&tel_string(card.w_fax, TelType::FAX, Some(BaseType::WORK)));
+        vcard_string.push_str(&tel_string(card.w_fax, TelType::Fax, Some(BaseType::Work)));
     }
 
     if card.organization.ne("") {
