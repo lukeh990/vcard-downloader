@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2023 Luke Harding
 
-
 use rouille::{router, Response};
 use std::env;
 use std::error;
 use std::fs::File;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, ToSocketAddrs};
 
-pub mod schema;
 pub mod models;
+pub mod schema;
 
-mod vcard_processor;
 mod db;
+mod vcard_processor;
 
 pub type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
-fn main() -> Result<()>  {
+fn main() -> Result<()> {
     let bind = get_bind_address();
 
     println!("Starting server on {}:{1}", bind.ip(), bind.port());
@@ -41,9 +40,7 @@ fn main() -> Result<()>  {
                     };
                     return Response::from_file(mime_type, public);
                 } else if let Ok(card) = db::search_card(id) {
-                    return Response::text(format!("{:#?}", card));
-                    // let data = vcard_processor::create_vcard(id).to_string();
-                    // return Response::from_data("text/vcard", data);
+                    return Response::from_data("text/vcard", vcard_processor::create_vcard(card).to_string())
                 }
 
                 not_found()
@@ -51,7 +48,7 @@ fn main() -> Result<()>  {
 
             (GET) (/{alias_org: String}/{alias_name: String}) => {
                 if let Ok(card) = db::alias_search_card(format!("{}/{1}", alias_org, alias_name)) {
-                    return Response::text(format!("{:#?}", card))
+                    return Response::from_data("text/vcard", vcard_processor::create_vcard(card).to_string())
                 }
 
                 not_found()
