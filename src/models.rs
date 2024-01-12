@@ -1,6 +1,6 @@
 use diesel::prelude::*;
 
-#[derive(Queryable, Selectable, Clone)]
+#[derive(Queryable, Selectable, Clone, Debug)]
 #[diesel(table_name = crate::schema::vcards)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct VCard {

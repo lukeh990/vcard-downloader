@@ -1,9 +1,9 @@
-use diesel::sqlite::SqliteConnection;
-use diesel::prelude::*;
-use dotenvy::dotenv;
-use std::env;
 use crate::*;
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+use dotenvy::dotenv;
 use models::*;
+use std::env;
 
 pub fn establish_connection() -> Result<SqliteConnection> {
     dotenv().ok();
@@ -14,16 +14,33 @@ pub fn establish_connection() -> Result<SqliteConnection> {
 
 pub fn search_card(find_uuid: String) -> Result<VCard> {
     use schema::vcards::dsl::*;
-    
+
     let connection = &mut establish_connection()?;
     let results: Vec<VCard> = vcards
         .filter(uuid.eq(find_uuid))
         .select(VCard::as_select())
         .load(connection)?;
 
-    let card: VCard = match results.iter().nth(0) {
+    let card = match results.get(0) {
         Some(card) => card.clone(),
-        None => return Err("No Match".into())
+        None => return Err("No Match Found".into())
+    };
+
+    Ok(card)
+}
+
+pub fn alias_search_card(find_alias: String) -> Result<VCard> {
+    use schema::vcards::dsl::*;
+
+    let connection = &mut establish_connection()?;
+    let alias_results: Vec<VCard> = vcards
+        .filter(alias.eq(find_alias))
+        .select(VCard::as_select())
+        .load(connection)?;
+
+    let card = match alias_results.get(0) {
+        Some(card) => card.clone(),
+        None => return Err("No Match Found".into())
     };
 
     Ok(card)

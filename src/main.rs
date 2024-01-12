@@ -41,9 +41,17 @@ fn main() -> Result<()>  {
                     };
                     return Response::from_file(mime_type, public);
                 } else if let Ok(card) = db::search_card(id) {
-                    return Response::text(card.email);
+                    return Response::text(format!("{:#?}", card));
                     // let data = vcard_processor::create_vcard(id).to_string();
                     // return Response::from_data("text/vcard", data);
+                }
+
+                not_found()
+            },
+
+            (GET) (/{alias_org: String}/{alias_name: String}) => {
+                if let Ok(card) = db::alias_search_card(format!("{}/{1}", alias_org, alias_name)) {
+                    return Response::text(format!("{:#?}", card))
                 }
 
                 not_found()
