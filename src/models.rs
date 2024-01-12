@@ -18,7 +18,6 @@ pub struct VCard {
     pub nickname: String,
     pub prefix: String,
     pub suffix: String,
-    pub gender: String,
     pub role: String,
     pub h_phone: String,
     pub c_phone: String,

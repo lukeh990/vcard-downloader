@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS vcards (
 	nickname TEXT NOT NULL,
 	prefix TEXT NOT NULL,
 	suffix TEXT NOT NULL,
-	gender TEXT NOT NULL,
 	role TEXT NOT NULL,
 	h_phone TEXT NOT NULL,
 	c_phone TEXT NOT NULL,

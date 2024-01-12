@@ -16,7 +16,6 @@ diesel::table! {
         nickname -> Text,
         prefix -> Text,
         suffix -> Text,
-        gender -> Text,
         role -> Text,
         h_phone -> Text,
         c_phone -> Text,

@@ -2,149 +2,7 @@
 // Copyright (C) 2023 Luke Harding
 
 use crate::*;
-use models::VCard;
-use sp_vcard::rfc6350::parameters::{BaseType, TelType};
-use sp_vcard::rfc6350::values::{
-    Address, Email, FullName, IGender, Name, NickName, Note, Organization, Role, Tel, Title, URL,
-};
-use sp_vcard::rfc6350::VCard40;
-
-pub fn create_vcard(card: VCard) -> VCard40 {
-    let mut vc = VCard40::new();
-
-    let mut full_name: String = card.prefix.to_owned();
-
-    if card.firstname.ne("") && card.prefix.eq("") {
-        full_name.push_str(&card.firstname.to_string());
-    } else {
-        full_name.push_str(&format!(" {}", card.firstname));
-    }
-
-    if card.middlename.ne("") {
-        full_name.push_str(&format!(" {}", card.middlename));
-    }
-
-    if card.lastname.ne("") {
-        full_name.push_str(&format!(" {}", card.lastname));
-    }
-
-    if card.suffix.ne("") {
-        full_name.push_str(&format!(" {}", card.suffix));
-    }
-
-    vc.full_names.add(FullName::new().set_value(&full_name));
-
-    vc.name.set(
-        Name::new()
-            .add_given_name(&card.firstname)
-            .add_additional_name(&card.middlename)
-            .add_family_name(&card.lastname)
-            .add_honorific_prefix(&card.prefix)
-            .add_honorific_suffix(&card.suffix),
-    );
-
-    vc.orgs
-        .add(Organization::new().set_value(&card.organization));
-
-    vc.tels.add(
-        Tel::new()
-            .add_base_type(BaseType::WORK)
-            .add_tel_type(TelType::VOICE)
-            .set_value(&card.w_phone),
-    );
-
-    vc.tels.add(
-        Tel::new()
-            .add_base_type(BaseType::HOME)
-            .add_tel_type(TelType::VOICE)
-            .set_value(&card.h_phone),
-    );
-
-    vc.tels.add(
-        Tel::new()
-            .add_base_type(BaseType::HOME)
-            .add_tel_type(TelType::CELL)
-            .set_value(&card.c_phone),
-    );
-
-    vc.tels.add(
-        Tel::new()
-            .add_base_type(BaseType::HOME)
-            .add_tel_type(TelType::VOICE)
-            .set_value(&card.p_phone),
-    );
-
-    vc.tels.add(
-        Tel::new()
-            .add_base_type(BaseType::HOME)
-            .add_tel_type(TelType::FAX)
-            .set_value(&card.h_fax),
-    );
-
-    vc.tels.add(
-        Tel::new()
-            .add_base_type(BaseType::WORK)
-            .add_tel_type(TelType::FAX)
-            .set_value(&card.w_fax),
-    );
-
-    vc.titles.add(Title::new().set_value(&card.title));
-
-    vc.urls.add(URL::new().set_value(&card.url));
-    vc.urls.add(URL::new().set_value(&card.workurl));
-
-    vc.notes.add(Note::new().set_value(&card.note));
-
-    vc.nicknames
-        .add(NickName::new().add_nickname(&card.nickname));
-
-    let gender = match card.gender.as_ref() {
-        "M" => IGender::Male,
-        "F" => IGender::Female,
-        "O" => IGender::Other,
-        _ => IGender::Unknown,
-    };
-    vc.gender.set(gender);
-
-    vc.roles.add(Role::new().set_value(&card.role));
-
-    vc.emails.add(
-        Email::new()
-            .add_base_type(BaseType::HOME)
-            .set_value(&card.h_email),
-    );
-
-    vc.emails.add(
-        Email::new()
-            .add_base_type(BaseType::WORK)
-            .set_value(&card.w_email),
-    );
-
-    let h_addr = match decode_address(card.h_address) {
-        Ok(addr) => Address::new()
-            .street(&addr.street)
-            .locality(&addr.locality)
-            .region(&addr.region)
-            .code(&addr.code)
-            .country(&addr.country),
-        Err(_) => Address::new(),
-    };
-    vc.addresses.add(h_addr.add_base_type(BaseType::HOME));
-
-    let w_addr = match decode_address(card.w_address) {
-        Ok(addr) => Address::new()
-            .street(&addr.street)
-            .locality(&addr.locality)
-            .region(&addr.region)
-            .code(&addr.code)
-            .country(&addr.country),
-        Err(_) => Address::new(),
-    };
-    vc.addresses.add(w_addr.add_base_type(BaseType::WORK));
-
-    vc
-}
-
+use models::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -156,9 +14,158 @@ struct StoredAddress {
     country: String,
 }
 
+enum BaseType {
+    HOME,
+    WORK,
+}
+
+impl BaseType {
+    fn as_str(&self) -> &'static str {
+        match self {
+            BaseType::HOME => "HOME",
+            BaseType::WORK => "WORK",
+        }
+    }
+}
+
+enum TelType {
+    VOICE,
+    CELL,
+    FAX,
+}
+
+impl TelType {
+    fn as_str(&self) -> &'static str {
+        match self {
+            TelType::VOICE => "VOICE",
+            TelType::CELL => "CELL",
+            TelType::FAX => "FAX",
+        }
+    }
+}
+
+pub fn create_vcard(card: VCard) -> String {
+    let mut vcard_string: String = "BEGIN:VCARD\nVERSION:3.0\n".to_owned();
+
+    let mut formatted_name: String = "".to_owned();
+    if card.prefix.ne("") {
+        formatted_name.push_str(&card.prefix)
+    }
+    if card.firstname.ne("") {
+        formatted_name.push_str(&format!(" {}", card.firstname));
+    }
+    if card.middlename.ne("") {
+        formatted_name.push_str(&format!(" {}", card.middlename));
+    }
+    if card.lastname.ne("") {
+        formatted_name.push_str(&format!(" {}", card.lastname));
+    }
+    if card.suffix.ne("") {
+        formatted_name.push_str(&format!(" {}", card.suffix));
+    }
+
+    vcard_string.push_str(&format!("FN;CHARSET=UTF-8:{}\n", formatted_name));
+
+    vcard_string.push_str(&format!(
+        "N;CHARSET=UTF-8:{};{1};{2};{3};{4}\n",
+        card.lastname, card.firstname, card.middlename, card.prefix, card.suffix
+    ));
+
+    match decode_address(card.h_address) {
+        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::HOME)),
+        Err(_) => (),
+    }
+    match decode_address(card.w_address) {
+        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::WORK)),
+        Err(_) => (),
+    }
+
+    if card.w_phone.ne("") {
+        vcard_string.push_str(&tel_string(
+            card.w_phone,
+            TelType::VOICE,
+            Some(BaseType::WORK),
+        ));
+    }
+
+    if card.h_phone.ne("") {
+        vcard_string.push_str(&tel_string(
+            card.h_phone,
+            TelType::VOICE,
+            Some(BaseType::HOME),
+        ));
+    }
+
+    if card.c_phone.ne("") {
+        vcard_string.push_str(&tel_string(card.c_phone, TelType::CELL, None));
+    }
+
+    if card.p_phone.ne("") {
+        vcard_string.push_str(&tel_string(card.p_phone, TelType::VOICE, None));
+    }
+
+    if card.h_fax.ne("") {
+        vcard_string.push_str(&tel_string(card.h_fax, TelType::FAX, Some(BaseType::HOME)));
+    }
+
+    if card.w_fax.ne("") {
+        vcard_string.push_str(&tel_string(card.w_fax, TelType::FAX, Some(BaseType::WORK)));
+    }
+
+    if card.organization.ne("") {
+        vcard_string.push_str(&format!("ORG;CHARSET=UTF-8:{}\n", card.organization));
+    }
+
+    if card.title.ne("") {
+        vcard_string.push_str(&format!("TITLE;CHARSET=UTF-8:{}\n", card.title));
+    }
+
+    /*
+    TODO:
+    - [ ] URLS
+    - [ ] Notes
+    - [ ] Nickname
+    - [ ] Role
+    - [ ] Email
+    - [X] UID
+    - [X] Addresses
+    - [X] Phones
+    - [X] Names
+    */
+
+    vcard_string.push_str(&format!("UID;CHARSET=UTF-8:{}\n", card.uuid));
+
+    vcard_string.push_str("END:VCARD");
+    vcard_string
+}
+
 fn decode_address(encoded: String) -> Result<StoredAddress> {
     match serde_json::from_str::<StoredAddress>(&encoded) {
         Ok(addr) => Ok(addr),
         Err(e) => Err(e.into()),
     }
+}
+
+fn address_string(addr: StoredAddress, addr_type: BaseType) -> String {
+    format!(
+        "ADR;CHARSET=UTF-8;TYPE={}:;;{1};{2};{3};{4};{5}\n",
+        addr_type.as_str(),
+        addr.street,
+        addr.locality,
+        addr.region,
+        addr.code,
+        addr.country
+    )
+}
+
+fn tel_string(number: String, tel_type: TelType, base_type: Option<BaseType>) -> String {
+    let mut type_string = "".to_owned();
+    type_string.push_str(tel_type.as_str());
+
+    match base_type {
+        Some(base_type) => type_string.push_str(&format!(",{}", base_type.as_str())),
+        None => (),
+    }
+
+    format!("TEL;TYPE={}:{1}\n", type_string, number)
 }
