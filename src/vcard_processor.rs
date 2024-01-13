@@ -32,6 +32,7 @@ enum TelType {
     Voice,
     Cell,
     Fax,
+    Pager
 }
 
 impl TelType {
@@ -40,6 +41,7 @@ impl TelType {
             TelType::Voice => "VOICE",
             TelType::Cell => "CELL",
             TelType::Fax => "FAX",
+            TelType::Pager => "PAGER"
         }
     }
 }
@@ -48,20 +50,15 @@ pub fn create_vcard(card: VCard) -> String {
     let mut vcard_string: String = "BEGIN:VCARD\nVERSION:3.0\n".to_owned();
 
     let mut formatted_name: String = "".to_owned();
-    if card.prefix.ne("") {
-        formatted_name.push_str(&card.prefix)
-    }
+
     if card.firstname.ne("") {
-        formatted_name.push_str(&format!(" {}", card.firstname));
+        formatted_name.push_str(&card.firstname);
     }
     if card.middlename.ne("") {
         formatted_name.push_str(&format!(" {}", card.middlename));
     }
     if card.lastname.ne("") {
         formatted_name.push_str(&format!(" {}", card.lastname));
-    }
-    if card.suffix.ne("") {
-        formatted_name.push_str(&format!(" {}", card.suffix));
     }
 
     vcard_string.push_str(&format!("FN;CHARSET=UTF-8:{}\n", formatted_name));
@@ -71,13 +68,11 @@ pub fn create_vcard(card: VCard) -> String {
         card.lastname, card.firstname, card.middlename, card.prefix, card.suffix
     ));
 
-    match decode_address(card.h_address) {
-        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::Home)),
-        Err(_) => (),
+    if let Ok(addr) = decode_address(card.h_address) {
+        vcard_string.push_str(&address_string(addr, BaseType::Home));
     }
-    match decode_address(card.w_address) {
-        Ok(addr) => vcard_string.push_str(&address_string(addr, BaseType::Work)),
-        Err(_) => (),
+    if let Ok(addr) = decode_address(card.w_address) {
+        vcard_string.push_str(&address_string(addr, BaseType::Work));
     }
 
     if card.w_phone.ne("") {
@@ -101,7 +96,7 @@ pub fn create_vcard(card: VCard) -> String {
     }
 
     if card.p_phone.ne("") {
-        vcard_string.push_str(&tel_string(card.p_phone, TelType::Voice, None));
+        vcard_string.push_str(&tel_string(card.p_phone, TelType::Pager, None));
     }
 
     if card.h_fax.ne("") {
@@ -120,17 +115,47 @@ pub fn create_vcard(card: VCard) -> String {
         vcard_string.push_str(&format!("TITLE;CHARSET=UTF-8:{}\n", card.title));
     }
 
+    if card.url.ne("") {
+        vcard_string.push_str(&format!("URL;CHARSET=UTF-8:{}\n", card.url));
+    }
+
+    if card.workurl.ne("") {
+        vcard_string.push_str(&format!("URL;TYPE=WORK;CHARSET=UTF-8:{}\n", card.workurl));
+    }
+
+    if card.note.ne("") {
+        vcard_string.push_str(&format!("NOTE;CHARSET=UTF-8:{}\n", card.note));
+    }
+
+    if card.nickname.ne("") {
+        vcard_string.push_str(&format!("NICKNAME;CHARSET=UTF-8:{}\n", card.nickname));
+    }
+
+    if card.role.ne("") {
+        vcard_string.push_str(&format!("ROLE;CHARSET=UTF-8:{}\n", card.role));
+    }
+
+    if card.h_email.ne("") {
+        vcard_string.push_str(&format!("EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:{}\n", card.h_email));
+    }
+
+    if card.w_email.ne("") {
+        vcard_string.push_str(&format!("EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:{}\n", card.w_email));
+    }
+
     /*
     TODO:
-    - [ ] URLS
-    - [ ] Notes
-    - [ ] Nickname
-    - [ ] Role
-    - [ ] Email
+    - [X] URLS
+    - [X] Notes
+    - [X] Nickname
+    - [X] Role
+    - [X] Email
     - [X] UID
     - [X] Addresses
-    - [X] Phones
+    - [X] Tels
     - [X] Names
+    - [X] Title
+    - [X] Org
     */
 
     vcard_string.push_str(&format!("UID;CHARSET=UTF-8:{}\n", card.uuid));
@@ -162,9 +187,8 @@ fn tel_string(number: String, tel_type: TelType, base_type: Option<BaseType>) ->
     let mut type_string = "".to_owned();
     type_string.push_str(tel_type.as_str());
 
-    match base_type {
-        Some(base_type) => type_string.push_str(&format!(",{}", base_type.as_str())),
-        None => (),
+    if let Some(base_type) = base_type {
+        type_string.push_str(&format!(",{}", base_type.as_str()));
     }
 
     format!("TEL;TYPE={}:{1}\n", type_string, number)
