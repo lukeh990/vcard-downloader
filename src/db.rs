@@ -1,14 +1,14 @@
 use crate::*;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
-use dotenvy::dotenv;
 use models::*;
 use std::env;
 
 pub fn establish_connection() -> Result<SqliteConnection> {
-    dotenv().ok();
+    #[cfg(debug_assertions)]
+    dotenvy::dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = env::var("DATABASE_URL").unwrap_or("file:card_data.db3".to_owned());
     Ok(SqliteConnection::establish(&database_url)?)
 }
 
@@ -23,7 +23,7 @@ pub fn search_card(find_uuid: String) -> Result<VCard> {
 
     let card = match results.first() {
         Some(card) => card.clone(),
-        None => return Err("No Match Found".into())
+        None => return Err("No Match Found".into()),
     };
 
     Ok(card)
@@ -40,7 +40,7 @@ pub fn alias_search_card(find_alias: String) -> Result<VCard> {
 
     let card = match alias_results.first() {
         Some(card) => card.clone(),
-        None => return Err("No Match Found".into())
+        None => return Err("No Match Found".into()),
     };
 
     Ok(card)
