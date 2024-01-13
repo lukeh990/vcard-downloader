@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2023 Luke Harding
+
 use crate::*;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;

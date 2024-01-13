@@ -1,13 +1,8 @@
 services:
   vcard-downloader:
-    image: ghcr.io/lukeh990/vcard-downloader:release
+    image: ghcr.io/lukeh990/vcard-downloader:main
     ports:
       - 5000:5000
     volumes:
       - ./db:/vcard-downloader/db
     container_name: vcard-downloader
-  watchtower:
-    image: containrrr/watchtower:main
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 3600 vcard-downloader

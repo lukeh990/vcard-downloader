@@ -2,10 +2,13 @@
 Download VCard files from browser
   
 Designed to be ran so that when the link is opened in a mobile browser it displays a VCard file in the native viewer.
-## Bugs
-- Currently all phones, emails, and addresses types are not detected by iOS.
 ## Running
-VCard Downloader currently just supports a SQLite DB but I am working on implementing a MySQL connection as well.
+The easiest way to run is to download and run the docker compose.
+```bash
+wget https://raw.githubusercontent.com/lukeh990/vcard-downloader/main/compose.yaml
+docker compose up -d
+```
+After running that command, a `.db3` file will be placed in the `./db`. Use a tool like [DBeaver](https://dbeaver.io) to access the file and load the vcards onto it.
 ### Environment
 #### BIND
 The executable accepts the environment variable `BIND` to select which ip and which ports the server will respond to. 
