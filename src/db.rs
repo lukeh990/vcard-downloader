@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// Copyright (C) 2023 Luke Harding
+// Copyright (C) 2023-2024 Luke Harding
 
-use crate::*;
+use std::env;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
+use uuid::Uuid;
+
 use models::*;
-use std::env;
+
+use crate::*;
+use crate::schema::analytics;
+
+use self::models::{Analytic, NewAnalytic};
 
 pub fn establish_connection() -> Result<SqliteConnection> {
     #[cfg(debug_assertions)]
@@ -29,6 +37,23 @@ pub fn search_card(find_uuid: String) -> Result<VCard> {
         None => return Err("No Match Found".into()),
     };
 
+    let new_uuid = Uuid::new_v4().to_string();
+    let current_time = match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(current_time) => current_time,
+        Err(_) => return Err("Time went backwards!".into()),
+    };
+
+    let new_analytic = NewAnalytic {
+        uuid: &new_uuid,
+        timestamp: current_time.as_secs() as i32,
+        card_uuid: &card.uuid,
+    };
+
+    let _ = diesel::insert_into(analytics::table)
+        .values(&new_analytic)
+        .returning(Analytic::as_returning())
+        .get_result(connection);
+
     Ok(card)
 }
 
@@ -45,6 +70,23 @@ pub fn alias_search_card(find_alias: String) -> Result<VCard> {
         Some(card) => card.clone(),
         None => return Err("No Match Found".into()),
     };
+
+    let new_uuid = Uuid::new_v4().to_string();
+    let current_time = match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(current_time) => current_time,
+        Err(_) => return Err("Time went backwards!".into()),
+    };
+
+    let new_analytic = NewAnalytic {
+        uuid: &new_uuid,
+        timestamp: current_time.as_secs() as i32,
+        card_uuid: &card.uuid,
+    };
+
+    let _ = diesel::insert_into(analytics::table)
+        .values(&new_analytic)
+        .returning(Analytic::as_returning())
+        .get_result(connection);
 
     Ok(card)
 }

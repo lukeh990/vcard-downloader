@@ -19,3 +19,6 @@ card_data.db3
 
 # Environment
 .env
+
+# InteliJ Files
+.idea

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// Copyright (C) 2023 Luke Harding
+// Copyright (C) 2023-2024 Luke Harding
 
 use diesel::prelude::*;
+
+use crate::schema::analytics;
+use crate::schema::vcards;
 
 #[derive(Queryable, Selectable, Clone, Debug)]
 #[diesel(table_name = crate::schema::vcards)]
@@ -31,14 +34,29 @@ pub struct VCard {
     pub w_email: String,
     pub alias: String,
     pub h_address: String,
-    pub w_address: String
+    pub w_address: String,
 }
-
-use crate::schema::vcards;
 
 #[derive(Insertable)]
 #[diesel(table_name = vcards)]
 pub struct NewVCard<'a> {
     pub uuid: &'a str,
     pub email: &'a str,
+}
+
+#[derive(Queryable, Selectable, Clone, Debug)]
+#[diesel(table_name = crate::schema::analytics)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Analytic {
+    pub uuid: String,
+    pub timestamp: i32,
+    pub card_uuid: String,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = analytics)]
+pub struct NewAnalytic<'a> {
+    pub uuid: &'a str,
+    pub timestamp: i32,
+    pub card_uuid: &'a str,
 }

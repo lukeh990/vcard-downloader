@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// Copyright (C) 2023 Luke Harding
+// Copyright (C) 2023-2024 Luke Harding
 
 use rouille::{router, Response};
 use std::env;
@@ -67,10 +67,7 @@ fn get_bind_address() -> SocketAddr {
         Err(_) => None,
     };
 
-    match env_socket {
-        Some(socket) => socket,
-        None => SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 5000),
-    }
+    env_socket.unwrap_or_else(|| SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 5000))
 }
 
 fn not_found() -> Response {

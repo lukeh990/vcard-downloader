@@ -1,7 +1,12 @@
-// SPDX-License-Identifier: GPL-3.0-only
-// Copyright (C) 2023 Luke Harding
-
 // @generated automatically by Diesel CLI.
+
+diesel::table! {
+    analytics (uuid) {
+        uuid -> Text,
+        timestamp -> Integer,
+        card_uuid -> Text,
+    }
+}
 
 diesel::table! {
     vcards (uuid) {
@@ -32,3 +37,10 @@ diesel::table! {
         w_address -> Text,
     }
 }
+
+diesel::joinable!(analytics -> vcards (card_uuid));
+
+diesel::allow_tables_to_appear_in_same_query!(
+    analytics,
+    vcards,
+);
